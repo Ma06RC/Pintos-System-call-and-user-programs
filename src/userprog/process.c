@@ -177,39 +177,20 @@ process_wait (tid_t child_tid)
       ======================== */
    /* my code begins */
   struct thread *cur = thread_current();    //gets the current thread
-  //struct list_elem *child_elem = list_begin(&cur->children);
-  struct list_elem *element; 
+  struct list_elem *child_elem; 
   
-  for(element = list_begin(&cur->children); element != list_end(&cur->children); element = list_next(element)){     //Traverse through each child  
-    struct wait_status *child_waitstatus = list_entry(element, struct wait_status, elem);
+  for(child_elem = list_begin(&cur->children); child_elem != list_end(&cur->children); child_elem = list_next(child_elem)){     //Traverse through each child  
+    struct wait_status *child_wait_status = list_entry(child_elem, struct wait_status, elem);
 
-    if(child_waitstatus->tid == child_tid){   //checks if this the child process to be waited for
+    if(child_wait_status->tid == child_tid){   //checks if this the child process to be waited for
       
-      list_remove(element);     
-      sema_down(&child_waitstatus->dead);           //wait for the child process to become dead
-      int exit_num = child_waitstatus->exit_code;     //Obtain wait status of the child process
-      release_child(child_waitstatus);
+      list_remove(child_elem);     
+      sema_down(&child_wait_status->dead);           //wait for the child process to become dead
+      int exit_num = child_wait_status->exit_code;     //Obtain wait status of the child process
+      release_child(child_wait_status);
       return exit_num;        //return the exit code
     }
   }
-
-  // //Go through each child one by one.
-  // while(child_elem != list_end(&cur->children)){
-  //   struct wait_status *child_wait_status = list_entry(child_elem, struct wait_status, elem);
-  //   //Check whether a child process is the one to be waited for.
-  //   if(child_wait_status->tid == child_tid){
-  //     //Wait for the child process to become dead.
-  //     sema_down(&child_wait_status->dead);
-  //     //Obtain exit code from the wait_status of the child process.
-  //     int exit_code = child_wait_status->exit_code;
-  //     //remove from waiting list
-  //     list_remove(child_elem);
-  //     //Call release_child()
-  //     release_child(child_wait_status);
-  //     //Return the exit code.
-  //     return exit_code;
-  //   }
-  // }
    /* my code ends */
 
   return -1;
@@ -245,16 +226,16 @@ process_exit (void)
   lock_release(&cur->wait_status->lock);      //release the lock of wait status
   
   if(new_ref_cnt == 0){     //checks if the both child and parents are dead, if so then free the reference
-    free(cs);   // frees refernce to cs (wait status) of this process
+    free(cur);   // frees refernce to the wait status of this process
   }
 
-  struct list_elem *child_elem = list_begin(&cur->children);
+  struct list_elem *child_elem;
+  struct list_elem *next;
 
-  while(child_elem!=list_end(&cur->children)){    //go through the child list
-    //Release a reference to the wait_status of each child process.
+  for(child_elem = list_begin(&cur->children); child_elem != list_end(&cur->children); child_elem = next){    //go through the child list
     struct wait_status *child_wait_status = list_entry(child_elem, struct wait_status, elem);
-    child_elem =  list_remove(child_elem);    
-    release_child(child_wait_status);
+    next =  list_remove(child_elem);    
+    release_child(child_wait_status); //Release a reference to the wait_status of each child process.
   }
    /* my code ends */
 
