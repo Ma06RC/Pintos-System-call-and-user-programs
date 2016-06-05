@@ -45,10 +45,6 @@ process_execute (const char *file_name)
   char thread_name[16];
   tid_t tid;
 
-  /* my code begins */
-  char *saveptr; 
-  /* my code ends */
-
   /* Initialize exec_info. */
   exec.file_name = file_name;
 
