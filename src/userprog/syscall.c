@@ -216,7 +216,7 @@ static int sys_exit (int exit_code)
     /* my code begins */
     //printf ("system call!\n");      //Causing problems when testing the first part of the project
     thread_exit ();
-    return 0;           
+    return 0;             //change it to 0 to indicate that its a success otherwise its an error
     /* my code ends */
 }
 

@@ -180,7 +180,7 @@ process_wait (tid_t child_tid)
 
     if(child_wait_status->tid == child_tid){   //checks if this the child process to be waited for
       
-      list_remove(child_elem);     
+      list_remove(child_elem);     //remove the current child to travers to the next child
       sema_down(&child_wait_status->dead);           //wait for the child process to become dead
       int exit_num = child_wait_status->exit_code;     //Obtain wait status of the child process
       release_child(child_wait_status);
